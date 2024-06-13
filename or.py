@@ -1,12 +1,26 @@
-# OR GGATE
+# OR GATE
 
 from utils.all_utils import prepare_data, save_plot
 from utils.model import Perceptron
 import pandas as  pd
+import logging
+import os
+
+
+gate = 'OR Gate'
+
+log_dir = 'logs'
+os.makedirs(log_dir, exist_ok=True)
+logging.basicConfig(
+    filename=os.path.join(log_dir, 'running_logs.logs'),
+    level=logging.INFO,
+    format='[%(asctime)s: %(levelname)s: %(module)s]: %(message)s',
+    filemode='a')
 
 def main(data, model_name, plotName, eta, epochs):
-    df_OR = pd.DataFrame(data)
-    X, y = prepare_data(df_OR)
+    df = pd.DataFrame(data)
+    logging.info(f"This is the raw dataset: \n {df}")
+    X, y = prepare_data(df)
 
     model_OR = Perceptron(eta=eta, epochs=epochs)
     model_OR.fit(X, y)
@@ -14,7 +28,7 @@ def main(data, model_name, plotName, eta, epochs):
     _ = model_OR.total_loss()    # Dummy Variable
 
     model_OR.save(filename=model_name, model_dir='model')
-    save_plot(df_OR, model_OR, filename=plotName)
+    save_plot(df, model_OR, filename=plotName)
 
 if __name__ == "__main__":
     OR = {
@@ -24,7 +38,14 @@ if __name__ == "__main__":
     }
     ETA = 0.3      # Learning Rate
     Epochs = 10
-    main(data=OR, model_name='or.model', plotName='or.png', eta=ETA, epochs=Epochs)
+
+    try:
+        logging.info(f'<<<<<<<< Starting Training for {gate} >>>>>>>>')
+        main(data=OR, model_name='or.model', plotName='or.png', eta=ETA, epochs=Epochs)
+        logging.info(f'<<<<<<<< Training Completed for {gate} >>>>>>>>\n\n')
+    except Exception as e:
+        logging.exception(e)
+        raise e 
 
 
 
